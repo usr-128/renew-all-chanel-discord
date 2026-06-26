@@ -8,8 +8,7 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="+", intents=intents)
 
-# IDs des deux membres autorisés
-ALLOWED_USERS = [1366070003379601500]  # Remplace par les vrais IDs
+ALLOWED_USERS = []  # Remplace par les vrais IDs
 
 @bot.event
 async def on_ready():
@@ -28,25 +27,20 @@ async def renew(ctx):
 
         print(f"[INFO] Traitement du salon : {name} ({channel.type})")
 
-        # Ignore les catégories elles-mêmes
         if isinstance(channel, discord.CategoryChannel):
             print(f"[INFO] Ignoré : {name} est une catégorie")
             continue
 
-        # Ignore les forums si besoin
         if isinstance(channel, discord.ForumChannel):
             print(f"[INFO] Ignoré : {name} est un forum")
             continue
 
-        # Ignore les salons communautaires requis
         if isinstance(channel, discord.TextChannel) and channel.is_news():
             print(f"[INFO] Ignoré : {name} est un salon obligatoire pour communauté")
             continue
 
-        # Prépare les permissions : tout le monde bloqué
         overwrites = {guild.default_role: discord.PermissionOverwrite(read_messages=False, connect=False)}
 
-        # Autorise les deux membres
         for user_id in ALLOWED_USERS:
             member = guild.get_member(user_id)
             if member:
@@ -55,13 +49,11 @@ async def renew(ctx):
                 else:
                     overwrites[member] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
 
-        # Sauvegarde infos spécifiques
         topic = getattr(channel, "topic", None)
         bitrate = getattr(channel, "bitrate", 64000)
         user_limit = getattr(channel, "user_limit", 0)
         nsfw = getattr(channel, "nsfw", False)
 
-        # Supprime l'ancien salon avec gestion des erreurs
         try:
             await channel.delete()
             print(f"[INFO] Salon {name} supprimé")
@@ -69,7 +61,6 @@ async def renew(ctx):
             print(f"[WARN] Impossible de supprimer {name} : {e}")
             continue
 
-        # Recrée le salon selon le type
         if isinstance(channel, discord.TextChannel):
             new_channel = await guild.create_text_channel(
                 name=name,
@@ -101,4 +92,4 @@ async def renew(ctx):
     print("✅ Tous les salons renouvelables ont été traités.")
     print("[INFO] Renouvellement terminé.")
 
-bot.run("MTQxNzI1MDY5NTUzODY3NTczMg.GCCbfO.qmbX1WSqwmJT2WtbrtZVGSj0eU0Np9TmCplVAQ")
+bot.run("")
